@@ -15,4 +15,8 @@ Tony: I assume crossover is randomly determined for each child in a generation. 
 
 Parker:  one point crossover
 
-After the chromosome is generated, each gene is then checked for mutation. Every gene has a 1 in BIG_NUMBER or so chance of mutating. Does that sound right?
+##Mutation##
+
+Tony: After the chromosome is generated, each gene is then checked for mutation. Every gene has a 1 in BIG_NUMBER or so chance of mutating. Does that sound right?
+
+Parker: use 1/300 chance for each bit in the chromosome.  This allows for the possibility of 0, 1, or more bits mutated in a single chromosome.
