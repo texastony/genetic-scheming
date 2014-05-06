@@ -1,19 +1,21 @@
 (set! population '())
-(set! gen-one-size 10)
 
-(define (run lst)
+(define (run lst gen-one-size)
   (set! target lst)
-  (gen-one (length lst) gen-one-size))
+  (first-gen (length lst) gen-one-size)
+  (display population))
 
-(define (gen-one chrom-len i)
+(define (first-gen chrom-len i)
   (if (> i 0)
       (begin
-        (let (chrom (gen-chrom '() chrom-len))
-          (append population chrom)))
-      ()))
+        (let ((x (gen-chrom '() chrom-len)))
+          (set! population (append population (list x))))
+        (first-gen chrom-len (- i 1)))
+      population))
 
-;; so this'll recurse for the length of the chromosome, appending randomly generated 1s and 0s
 (define (gen-chrom lst chrom-len)
   (if (< (length lst) chrom-len)
-      (append lst (random 1))
-      
+      (gen-chrom (append lst (list (random 2))) chrom-len)
+      lst))
+
+(run '(1 1 1 1) 10)
