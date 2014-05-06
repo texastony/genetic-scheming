@@ -2,17 +2,18 @@
 (define fitness-array '())
 (define counter 0)
 (define updateFrequency 0) 
-(define target '())
 (define population-size 0)
 (define stochastic-array '())
+(define target-fitness 0)
+(define stopper 1)
 
 ;; Called at program start, takes first generation and begins evolution
-(define (run lst gen-one-size x)
-  (set! target lst)
-  (set! target-fitness (calculate-fitness lst 0))
-  (set! population-size gen-one-size)
+(define (run target populationsize x)
+  (set! target-fitness target)
+  (set! population-size populationsize)
   (set! updateFrequency x)
-  (first-gen (length lst) population-size)
+  (first-gen target population-size)
+  (update-generation population)
   (evolve #t))
 
 ;; Creates the first generation of chromosome strings
@@ -32,41 +33,37 @@
 
 ;; Evolves the population by one generation until desired outcome achieved
 (define (evolve continue)
-  (if (eqv? (remainder counter updateFrequency) 0)
-      (begin
-        (set! fitness-array '())
-        (population-fitness population)
-        (let* ((temp fitness-array)
+;;  (display population)
+;;  (newline)
+  (let* ((temp fitness-array)
                (best (car (get-best temp 0 '())))
                (fitness (calculate-fitness best 0))
                (total (stochastic-calc fitness-array 0))
                (average-fit (quotient total population-size)))
-          (display "On the ") (display counter) (display " generation. ") (newline)
-          (display "  The best individual is: ") (display best) (display ". With a fitness of ") (display fitness) (newline)
-          (display "  The average fitness is ") (display average-fit) (display ".") (newline))))        
+  (if (eqv? (remainder counter updateFrequency) 0)
+      (begin
+        (display "On the ") (display counter) (display " generation. ") (newline)
+        (display "  The best individual is: ") (display best) (display ". With a fitness of ") (display fitness) (newline)
+        (display "  The average fitness is ") (display average-fit) (display ".") (newline)))
   (if continue
       (begin
-;;        (display population)
-;;        (newline)
-;;        (newline)
         (update-generation population)
-        (set! fitness-array '())
-        (population-fitness population)
+;;        (set! fitness-array '())
+;;        (population-fitness population)
         (evolve (check-fitness fitness-array)))
       (begin
-        (display "Target chromosome achieved.") (newline)
-        (display "Final population:") (newline)
-        (display population))))
+        (display "Target chromosome achieved: ") (display best) (display " on the ") (display counter) (display " Generation.") (newline)
+        (display population)))))
 
 ;; Checks population fitnesses to desired outcome fitness
 (define (check-fitness lst)
-  (if (not (null? lst))
-      (if (= (car (car lst)) target-fitness)
-          (if (match-chrom (cadr (car lst)) target)
+  (if (> counter stopper)
+      #f
+      (if (null? lst)
+          #t
+          (if (= (car (car lst)) target-fitness)
               #f
-              (check-fitness (cdr lst)))
-          #t)
-      #t))
+              (check-fitness (cdr lst))))))
 
 ;; Recurses through two chromosomes; return true if a match, otherwise false
 (define (match-chrom lst1 lst2)
@@ -95,15 +92,18 @@
 ;; Breeds a new generation from the current population
 (define (update-generation population)
   (set! counter (+ counter 1))
+  (set! fitness-array '())
   (population-fitness population)
+  (set! population '())
   (let ((temp fitness-array))
     (set! stochastic-array '())
     (let* ((total (stochastic-calc temp 0)))
-      (set! population '())
+      (display population) (newline)
       (breed 0 total))))
 
 ;; Creates all children
 (define (breed count total)
+  (display count) (display "  ") (display population-size) (display "   ") (display population) (newline)
   (if (< count population-size)
       (let* ((father-int (+ (random total) 1))
              (mother-int (+ (random total) 1))
@@ -111,6 +111,7 @@
              (mother (get-chromo mother-int stochastic-array))
              (child (crossover mother father))
              (child (mutation child)))
+        (display child)
         (set! population (append population (list child)))
         (breed (+ count 1) total))))
 
@@ -173,4 +174,7 @@
           (get-best (cdr lst) int best)
           (get-best (cdr lst) (car (car lst)) (cdr (car lst))))))
 
-(run '(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ) 100 10)
+(run 4 10 5)
+
+;;(cd "/Users/tonyknapp/git/genetic-scheming/src")
+;;(load "genetics.ss")
