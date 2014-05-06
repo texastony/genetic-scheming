@@ -142,8 +142,8 @@
                (new-total (+ fitness total)))
           (display fitness-array) (newline)
           (set! fitness-array
-                (list (append fitness-array
-                        (list new-total (car chrom)))))
+                (append fitness-array
+                        (list (list new-total (car chrom)))))
           (population-fitness-two lst new-total)))
       total))
 
